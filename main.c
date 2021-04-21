@@ -41,6 +41,11 @@ int is_equal_int(void * key1, void * key2) {
     return 0;
 }
 
+//Función para comparar claves de tipo int. Retorna 1 si son diferentes
+int is_unequal_int(void * key1, void * key2) {
+    return 0;
+}
+
 //Función para comparar claves de tipo int. Retorna 1 si key1 < key2
 int lower_than_int(void * key1, void * key2) {
     if(*(int*)key1 < *(int*)key2) return 1;
@@ -51,6 +56,19 @@ int lower_than_int(void * key1, void * key2) {
 int greater_than_int(void * key1, void * key2) {
     if(*(int*)key1 > *(int*)key2) return 1;
     return 0;
+}
+
+char *formatear(char *lectura){
+    int largo_palabra = strlen(lectura);
+    int j = 0;
+    for(int i = 0; i < largo_palabra; i++){
+        if(lectura[i] == '-' || isalnum(lectura[i])){
+            lectura[j] = lectura[i];
+            j++;
+        }
+    }
+    lectura[j] = '\0';
+    return lectura;
 }
 
 //Función que retorna el almacenamiento con los datos agregados de un nuevo pokemon
@@ -87,7 +105,7 @@ void ingresar_en_mapas(Almacenamiento *almac, Pokedex *pokedex, Map *pokemon_por
     insertMap(pokemon_por_region, pokedex->region, pokedex);
     
     //printf("%d - %s - %d - %d - %c\n", almac->id, almac->nombre, almac->PC, almac->PS, almac->sexo);
-    printf("%s - %s - %s - %d - %s\n", pokedex->nombre, pokedex->evo_previa, pokedex->evo_posterior, pokedex->numero, pokedex->region);
+    //printf("%s - %s - %s - %d - %s\n", pokedex->nombre, pokedex->evo_previa, pokedex->evo_posterior, pokedex->numero, pokedex->region);
 }
 
 //Función que lee el archivo
@@ -141,36 +159,23 @@ void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_alm
         if (modo_tipo) total_tipos++;
 
         if (cont_datos == 0) id = atoi(lectura);
-        if (cont_datos == 1 && !modo_tipo) strcpy(nombre, lectura);
+        if (cont_datos == 1 && !modo_tipo) strcpy(nombre, formatear(lectura));
         if ((modo_tipo && cont_datos >= 1) || (!modo_tipo && cont_datos == 2)){
-            
-            int j = 0;
-            for(int i = 0; i < largo_palabra; i++){
-                if(isalnum(lectura[i])){
-                    lectura[j] = lectura[i];
-                    j++;
-                }
-            }
-            lectura[j] = '\0';
-
-            push_back(lista_tipos, lectura);
+            push_back(lista_tipos, formatear(lectura));
         }
         if (cont_datos == 3) PC = atoi(lectura);
         if (cont_datos == 4) PS = atoi(lectura);
         if (cont_datos == 5){
-            largo_palabra = strlen(lectura);
             if(strcmp("Hembra", lectura) == 0) sexo = 'F';
             else sexo = 'M';
         }
         if (cont_datos == 6){
-            largo_palabra = strlen(lectura);
             if(strcmp("No tiene", lectura) == 0) strcpy(evo_previa, "(--)");
-            else strcpy(evo_previa, lectura);
+            else strcpy(evo_previa, formatear(lectura));
         }
         if (cont_datos == 7){
-            largo_palabra = strlen(lectura);
             if(strcmp("No tiene", lectura) == 0) strcpy(evo_posterior, "(--)");
-            else strcpy(evo_posterior, lectura);
+            else strcpy(evo_posterior, formatear(lectura));
         }
         if (cont_datos == 8) numero_pokedex = atoi(lectura);
         if (cont_datos == 9) strcpy(region, lectura);
@@ -210,7 +215,7 @@ int main(){
     setSortFunction(mapa_numero_pokedex, lower_than_int);
 
     //Mapa utilizado para mostrar a los pokémon del almacenamiento por PC
-    Map *pokemon_por_PC = createMap(is_equal_int);
+    Map *pokemon_por_PC = createMap(is_unequal_int);
     setSortFunction(pokemon_por_PC, greater_than_int);
 
     //Mapa utilizado para mostrar a los pokémon por región
@@ -218,12 +223,12 @@ int main(){
     setSortFunction(pokemon_por_region, lower_than_string);
 
     int escaneo;
-
     do{
+        int cont = 0;
         printf("Opcion:");
         scanf("%d", &escaneo);
         if (escaneo == 1) importarArchivo(pokemon_por_id, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex, pokemon_por_PC, pokemon_por_region);
-        
+        //Mostrar pokémon en pokédex por número en pokédex
         if (escaneo == 7){
             Pokedex *pokedex = firstMap(mapa_numero_pokedex);
             while(pokedex){
@@ -231,9 +236,12 @@ int main(){
                 pokedex = nextMap(mapa_numero_pokedex);
             }
         }
+        //Mostrar pokémon en almacenamiento por PC
         if (escaneo == 8){
             Almacenamiento *almac = firstMap(pokemon_por_PC);
             while(almac){
+                cont++;
+                printf("%d ", cont);
                 printf("%d - %s - %d - %d - %c\n", almac->PC, almac->nombre, almac->id, almac->PS, almac->sexo);
                 almac = nextMap(pokemon_por_PC);
             }
