@@ -222,12 +222,53 @@ void mostrar_pokemones_pokedex( Map *mapa_numero_pokedex){
 }
 
 //Función que muestra pokemones del almacenamiento por PC
-void mostrar_pokemones_almcaenamiento(Map *pokemon_por_PC){
+void mostrar_pokemones_almacenamiento(Map *pokemon_por_PC){
     Almacenamiento *almac = firstMap(pokemon_por_PC);
     while(almac){
         printf("%d - %s - %d - %d - %c\n", almac->PC, almac->nombre, almac->id, almac->PS, almac->sexo);
         almac = nextMap(pokemon_por_PC);
     }
+}
+
+char *pasar_mayus_primera_letra(char *nombre){
+    int cantidad = strlen(nombre);
+    int i;
+    printf("cantidad %i ", cantidad);
+    for(i = 0;i<cantidad; i++){
+        if(i == 0){
+            nombre[0] = toupper(nombre[0]);
+        }else{
+            nombre[i] = towlower(nombre[i]);
+        }
+    }
+    nombre[i] = '\0';
+}
+
+void pokemon_por_nombre(Map *pokemon_por_id){
+    char nombre[101];
+    printf("Ingrese el nombre que desea buscar\n");
+    scanf("%s", nombre);
+    pasar_mayus_primera_letra(nombre);
+    printf("nombre:%s \n", nombre);
+    Almacenamiento *iterador = firstMap(pokemon_por_id);
+
+    int cont = 0;
+
+    while(iterador){
+        if(strcmp(nombre, iterador->nombre) == 0){
+            if(cont == 0){
+                printf("NOMBRE ID PC PS SEXO\n");
+                cont = 1;
+            }
+            printf("%s %i %i %i %c\n", iterador->nombre, iterador->id , iterador->PC, iterador->PS, iterador->sexo);
+        }
+        //printf("%s\n", iterador->nombre);
+        iterador = nextMap(pokemon_por_id);
+    }
+    if(cont == 0){
+        printf("No se encuentra un pokemon con ese nombre\n");
+    }
+
 }
 
 int main(){
@@ -259,6 +300,9 @@ int main(){
     Map *pokemon_por_region = createMap(is_equal_string);
     setSortFunction(pokemon_por_region, lower_than_string);
 
+    //Variables
+    int id;
+
     int escaneo;
     do{
         display_menu();
@@ -275,6 +319,7 @@ int main(){
         case 4:
             break;
         case 5:
+            pokemon_por_nombre(pokemon_por_id);
             break;
         case 6:
             break;
@@ -284,7 +329,7 @@ int main(){
             break;
         //Mostrar pokémon en almacenamiento por PC
         case 8:
-            mostrar_pokemones_almcaenamiento(pokemon_por_PC);
+            mostrar_pokemones_almacenamiento(pokemon_por_PC);
             break;
         case 9:
             break;
@@ -294,7 +339,7 @@ int main(){
             return 0;
             break;
         default:
-            printf("Ingrese una opcion valida");
+            printf("Ingrese una opcion valida\n");
             break;
         }
         
