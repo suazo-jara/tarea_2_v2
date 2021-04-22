@@ -112,9 +112,12 @@ void ingresar_en_mapas(Almacenamiento *almac, Pokedex *pokedex, Map *pokemon_por
 void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_almacenamiento, Map *nombre_pokedex, Map *mapa_numero_pokedex, Map *pokemon_por_PC, Map *pokemon_por_region)
 {
     char *lectura = (char *)malloc(sizeof(char) * 100);
-    //char nombre_archivo[101];
-    //scanf("%s", nombre_archivo);
-    FILE *archivo = fopen("pokemon Archivo2.csv", "r");
+    char nombre_archivo[101];
+
+    printf("Ingrese el nombre del archivo\n");
+    scanf("%s", nombre_archivo);
+
+    FILE *archivo = fopen(nombre_archivo, "r");
     if (archivo == NULL) exit(EXIT_FAILURE);
 
     int id, PC, PS, numero_pokedex;
@@ -193,6 +196,40 @@ void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_alm
     }
 }
 
+//Función que muestra las opciones del menu
+void display_menu(){
+    printf("Escoja el numero\n");
+    printf("1.Importar/Exportar desde un archivo CSV:\n");
+    printf("2.Pokemon atrapado:\n");
+    printf("3.Evolucionar pokemon:\n");
+    printf("4.Buscar mis pokemon por tipo:\n");
+    printf("5.Buscar mis pokemon por nombre:\n");
+    printf("6.Buscar por nombre en pokedex:\n");
+    printf("7.Mostrar todos los pokemon de la pokedex:\n");
+    printf("8.Mostrar mis pokemon ordenados por PC:\n");
+    printf("9.Liberar pokemon:\n");
+    printf("10.Mostrar pokemon por region:\n");
+    printf("0.Salir\n");
+}
+
+//Función que muestra los pokemones de la pokédex por numero en pokédex
+void mostrar_pokemones_pokedex( Map *mapa_numero_pokedex){
+    Pokedex *pokedex = firstMap(mapa_numero_pokedex);
+    while(pokedex){
+        printf("%d - %s - %s - %s - %s\n", pokedex->numero, pokedex->nombre, pokedex->evo_previa, pokedex->evo_posterior, pokedex->region);
+        pokedex = nextMap(mapa_numero_pokedex);
+    }
+}
+
+//Función que muestra pokemones del almacenamiento por PC
+void mostrar_pokemones_almcaenamiento(Map *pokemon_por_PC){
+    Almacenamiento *almac = firstMap(pokemon_por_PC);
+    while(almac){
+        printf("%d - %s - %d - %d - %c\n", almac->PC, almac->nombre, almac->id, almac->PS, almac->sexo);
+        almac = nextMap(pokemon_por_PC);
+    }
+}
+
 int main(){
     //Mapa utilizado para evolucionar pokémon por ID
     Map *pokemon_por_id = createMap(is_equal_int);
@@ -224,27 +261,44 @@ int main(){
 
     int escaneo;
     do{
-        int cont = 0;
-        printf("Opcion:");
-        scanf("%d", &escaneo);
-        if (escaneo == 1) importarArchivo(pokemon_por_id, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex, pokemon_por_PC, pokemon_por_region);
+        display_menu();
+        scanf("%i", &escaneo);
+        switch (escaneo)
+        {
+        case 1:
+             importarArchivo(pokemon_por_id, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex, pokemon_por_PC, pokemon_por_region);
+            break;
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
+        case 5:
+            break;
+        case 6:
+            break;
         //Mostrar pokémon en pokédex por número en pokédex
-        if (escaneo == 7){
-            Pokedex *pokedex = firstMap(mapa_numero_pokedex);
-            while(pokedex){
-                printf("%d - %s - %s - %s - %s\n", pokedex->numero, pokedex->nombre, pokedex->evo_previa, pokedex->evo_posterior, pokedex->region);
-                pokedex = nextMap(mapa_numero_pokedex);
-            }
-        }
+        case 7:
+             mostrar_pokemones_pokedex(mapa_numero_pokedex);
+            break;
         //Mostrar pokémon en almacenamiento por PC
-        if (escaneo == 8){
-            Almacenamiento *almac = firstMap(pokemon_por_PC);
-            while(almac){
-                cont++;
-                printf("%d ", cont);
-                printf("%d - %s - %d - %d - %c\n", almac->PC, almac->nombre, almac->id, almac->PS, almac->sexo);
-                almac = nextMap(pokemon_por_PC);
-            }
+        case 8:
+            mostrar_pokemones_almcaenamiento(pokemon_por_PC);
+            break;
+        case 9:
+            break;
+        case 10:
+            break;
+        case 0:
+            return 0;
+            break;
+        default:
+            printf("Ingrese una opcion valida");
+            break;
         }
+        
     }while(escaneo != 0);
+
+    return 0;
 }
