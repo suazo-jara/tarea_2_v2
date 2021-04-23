@@ -115,7 +115,8 @@ void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_alm
     char nombre_archivo[101];
 
     printf("Ingrese el nombre del archivo\n");
-    scanf("%s", nombre_archivo);
+    scanf("%[^\n]s", nombre_archivo);
+    getchar();
 
     FILE *archivo = fopen(nombre_archivo, "r");
     if (archivo == NULL) exit(EXIT_FAILURE);
@@ -340,6 +341,7 @@ int main(){
             break;
         default:
             printf("Ingrese una opcion valida\n");
+            escaneo=0;
             break;
         }
         
