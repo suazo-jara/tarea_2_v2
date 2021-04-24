@@ -29,6 +29,11 @@ int is_equal_string(void * key1, void * key2) {
     return 0;
 }
 
+////Función para comparar claves de tipo string. Retorna 0 si son iguales
+int is_unequal_string(void * key1, void * key2) {
+    return 0;
+}
+
 //Función para comparar claves de tipo string. Retorna 1 si  key1 < key2
 int lower_than_string(void * key1, void * key2) {
     if(strcmp((char*)key1, (char*)key2) < 0) return 1;
@@ -41,7 +46,7 @@ int is_equal_int(void * key1, void * key2) {
     return 0;
 }
 
-//Función para comparar claves de tipo int. Retorna 1 si son diferentes
+//Función para comparar claves de tipo int. Retorna 0 si son diferentes
 int is_unequal_int(void * key1, void * key2) {
     return 0;
 }
@@ -98,12 +103,16 @@ Pokedex *guardarPokedex(char *nombre, List *tipos, char *evo_previa, char *evo_p
 //Función para ingresar los datos nuevos en la pokédex y en el almacenamiento
 void ingresar_en_mapas(Almacenamiento *almac, Pokedex *pokedex, Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_almacenamiento, Map *nombre_pokedex, Map *mapa_numero_pokedex, Map *pokemon_por_PC, Map *pokemon_por_region){
     insertMap(pokemon_por_id, &almac->id, almac);
-    
     insertMap(nombre_almacenamiento, almac->nombre, almac);
     insertMap(nombre_pokedex, almac->nombre, pokedex);
     insertMap(mapa_numero_pokedex, &pokedex->numero, pokedex);
     insertMap(pokemon_por_PC, &almac->PC, almac);
     insertMap(pokemon_por_region, pokedex->region, pokedex);
+    List * iterador = first(pokedex->tipos);
+    while(iterador){
+        insertMap(pokemon_por_tipo, iterador, pokedex);
+        iterador = next(pokedex->tipos);
+    }
     
     //printf("%d - %s - %d - %d - %c\n", almac->id, almac->nombre, almac->PC, almac->PS, almac->sexo);
     //printf("%s - %s - %s - %d - %s\n", pokedex->nombre, pokedex->evo_previa, pokedex->evo_posterior, pokedex->numero, pokedex->region);
@@ -233,7 +242,15 @@ void display_menu(){
 void mostrar_pokemones_pokedex( Map *mapa_numero_pokedex){
     Pokedex *pokedex = firstMap(mapa_numero_pokedex);
     while(pokedex){
-        printf("%d - %s - EN EXISTENCIA: %d - %s - %s - %s\n", pokedex->numero, pokedex->nombre, pokedex->existencias, pokedex->evo_previa, pokedex->evo_posterior, pokedex->region);
+        printf("%d - %s - EN EXISTENCIA: %d - %s - %s - %s - ", pokedex->numero, pokedex->nombre, pokedex->existencias, pokedex->evo_previa, pokedex->evo_posterior, pokedex->region);
+        List *iterador = first(pokedex->tipos);
+        printf("TIPOS: ");
+        while(iterador){
+            printf("%s", iterador);
+            iterador = next(pokedex->tipos);
+            if (iterador) printf(" / ");
+        }
+        printf("\n");
         pokedex = nextMap(mapa_numero_pokedex);
     }
 }
@@ -280,26 +297,32 @@ void pokemon_por_nombre(Map *pokemon_por_id){
         printf("No se encuentra un pokemon con ese nombre\n");
     }
 }
-void mostrar_pokemon_por_region(Map *mapa_numero_pokedex,Map* nombre_almacenamiento){
+
+//Función que muestra pokémon por región
+void mostrar_pokemon_por_region(Map *mapa_numero_pokedex){
     char region[15];int cantidad=0;int b=0;
     Pokedex *p= firstMap(mapa_numero_pokedex);
     
-    Almacenamiento *q=firstMap(nombre_almacenamiento);
-    
     printf("Ingrese el nombre de la region a buscar\n");
-    scanf("%s",region);
+    scanf("%s", region);
     pasar_mayus_primera_letra(region);
-    printf("\n\n Region:%10s\n\n",region);
-    printf(" Nombre               Ev. Prev        Ev. Post            Numero\n");
+    printf("\n\n Region:%10s\n\n", region);
+    printf(" Nombre               Ev. Prev        Ev. Post        Numero         Tipo\n");
+    printf("---------------------------------------------------------------------------------------\n");
     
     while(p){
 
-        if(strcmp(region,p->region)==0){
+        if(strcmp(region, p->region)==0){
             
-            printf("|%-20.20s %-15s %-15s %10d|\n",p->nombre,p->evo_previa,p->evo_posterior,p->numero);// agregar tipos existencias
-            cantidad++;
-            
-            
+            printf("|%-20.20s %-15s %-15s %-15d",p->nombre,p->evo_previa,p->evo_posterior,p->numero);
+            List *iterador = first(p->tipos);
+            while(iterador){
+                printf("%s", iterador);
+                iterador = next(p->tipos);
+                if (iterador) printf(" / ");
+            }
+            printf("|\n");
+            cantidad += p->existencias;
         }
         //printf("|%-20.20s %-10s %-10s %10d|\n",p->nombre,p->evo_previa,p->evo_posterior,p->numero);// agregar tipos existencias
         
@@ -307,14 +330,18 @@ void mostrar_pokemon_por_region(Map *mapa_numero_pokedex,Map* nombre_almacenamie
         
     
     }
-    //printf("                  |Cantidad de pokemones en esta region: %d|");
+    printf("|Cantidad de pokemones en esta region: %d|\n", cantidad);
 
 }//pokemones.csv
 
 int main(){
-    //Mapa utilizado para evolucionar pokémon por ID
-    Map *pokemon_por_id = createMap(is_equal_int);
-    setSortFunction(pokemon_por_id, lower_than_int);
+    //Mapa que guarda los pokémon en el almacenamiento con clave ID de pokémon
+    Map *pokemon_id_almacenamiento = createMap(is_equal_int);
+    setSortFunction(pokemon_id_almacenamiento, lower_than_int);
+
+    //Mapa que guarda a los pokémon en la pokédex en orden y sin repetir con clave ID de pokédex
+    Map *mapa_numero_pokedex = createMap(is_equal_int);
+    setSortFunction(mapa_numero_pokedex, lower_than_int);
 
     //Mapa utilizado para buscar pokémon por tipo
     Map *pokemon_por_tipo = createMap(is_equal_string);
@@ -327,10 +354,6 @@ int main(){
     //Mapa utilizado para buscar pokémon por nombre en pokédex
     Map *nombre_pokedex = createMap(is_equal_string);
     setSortFunction(nombre_pokedex, lower_than_string);
-
-    //Mapa utilizado para mostrar a todos los pokémon de la pokédex ordenados por número
-    Map *mapa_numero_pokedex = createMap(is_equal_int);
-    setSortFunction(mapa_numero_pokedex, lower_than_int);
 
     //Mapa utilizado para mostrar a los pokémon del almacenamiento por PC
     Map *pokemon_por_PC = createMap(is_unequal_int);
@@ -348,7 +371,7 @@ int main(){
         switch (escaneo)
         {
         case 1:
-            importarArchivo(pokemon_por_id, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex, pokemon_por_PC, pokemon_por_region);
+            importarArchivo(pokemon_id_almacenamiento, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex, pokemon_por_PC, pokemon_por_region);
             break;
         case 2:
             break;
@@ -358,7 +381,7 @@ int main(){
             break;
         case 5:
         //Mostrar a los pokémon por el nombre que ingrese el usuario
-            pokemon_por_nombre(pokemon_por_id);
+            pokemon_por_nombre(pokemon_id_almacenamiento);
             break;
         case 6:
             break;
@@ -373,7 +396,7 @@ int main(){
         case 9:
             break;
         case 10:
-            mostrar_pokemon_por_region(mapa_numero_pokedex,nombre_almacenamiento);
+            mostrar_pokemon_por_region(mapa_numero_pokedex);
             break;
         case 0:
             return 0;
