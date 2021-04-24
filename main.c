@@ -280,6 +280,36 @@ void pokemon_por_nombre(Map *pokemon_por_id){
         printf("No se encuentra un pokemon con ese nombre\n");
     }
 }
+void mostrar_pokemon_por_region(Map *mapa_numero_pokedex,Map* nombre_almacenamiento){
+    char region[15];int cantidad=0;int b=0;
+    Pokedex *p= firstMap(mapa_numero_pokedex);
+    
+    Almacenamiento *q=firstMap(nombre_almacenamiento);
+    
+    printf("Ingrese el nombre de la region a buscar\n");
+    scanf("%s",region);
+    pasar_mayus_primera_letra(region);
+    printf("\n\n Region:%10s\n\n",region);
+    printf(" Nombre               Ev. Prev        Ev. Post            Numero\n");
+    
+    while(p){
+
+        if(strcmp(region,p->region)==0){
+            
+            printf("|%-20.20s %-15s %-15s %10d|\n",p->nombre,p->evo_previa,p->evo_posterior,p->numero);// agregar tipos existencias
+            cantidad++;
+            
+            
+        }
+        //printf("|%-20.20s %-10s %-10s %10d|\n",p->nombre,p->evo_previa,p->evo_posterior,p->numero);// agregar tipos existencias
+        
+        p=nextMap(mapa_numero_pokedex);
+        
+    
+    }
+    //printf("                  |Cantidad de pokemones en esta region: %d|");
+
+}//pokemones.csv
 
 int main(){
     //Mapa utilizado para evolucionar pokémon por ID
@@ -343,6 +373,7 @@ int main(){
         case 9:
             break;
         case 10:
+            mostrar_pokemon_por_region(mapa_numero_pokedex,nombre_almacenamiento);
             break;
         case 0:
             return 0;
