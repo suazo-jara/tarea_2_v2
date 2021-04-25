@@ -12,7 +12,7 @@ Funciones y detalles:
 
 5: // FUNCIÓN HECHA //
 
-6: -- SIN IMPLEMENTAR --
+6: // FUNCIÓN HECHA //
 
 7: // FUNCIÓN HECHA //
 
