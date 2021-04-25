@@ -131,7 +131,7 @@ void buscar_en_pokedex(int numero_pokedex, Map *mapa_numero_pokedex){
 }
 
 //Función que lee el archivo
-void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_almacenamiento, Map *nombre_pokedex, Map *mapa_numero_pokedex, Map *pokemon_por_PC, Map *pokemon_por_region)
+void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_almacenamiento, Map *nombre_pokedex, Map *mapa_numero_pokedex, Map *pokemon_por_PC, Map *pokemon_por_region, int *total_pokemon, int *copia_id)
 {
     char *lectura = (char *)malloc(sizeof(char) * 100);
     char nombre_archivo[101];
@@ -210,6 +210,7 @@ void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_alm
 
         cont_datos++;
         if (cont_datos == 10){
+            *copia_id = id;
             Almacenamiento *almac = guardarAlmacenamiento(id, nombre, PC, PS, sexo);
             Pokedex *pokedex = guardarPokedex(nombre, lista_tipos, evo_previa, evo_posterior, numero_pokedex, existencias, region);
             ingresar_en_mapas(almac, pokedex, pokemon_por_id, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex, pokemon_por_PC, pokemon_por_region);
@@ -217,6 +218,7 @@ void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_alm
             total_tipos = 0;
             existencias = 1;
             lista_tipos = create_list();
+            *total_pokemon +=1;
         }
         lectura = (char *)malloc(sizeof(char) * 100);
     }
@@ -236,6 +238,143 @@ void display_menu(){
     printf("9. Liberar pokemon:\n");
     printf("10. Mostrar pokemon por region:\n");
     printf("0. Salir\n");
+}
+
+//Funcion pasar a mayuscula la primera letra 
+char *pasar_mayus_primera_letra(char *nombre){
+    int cantidad = strlen(nombre);
+    int i;
+    for(i = 0;i<cantidad; i++){
+        if(i == 0){
+            nombre[0] = toupper(nombre[0]);
+        }else{
+            nombre[i] = towlower(nombre[i]);
+        }
+    }
+    nombre[i] = '\0';
+}
+
+//Funcion agregar pokemon
+void agregar_pokemon(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_almacenamiento, Map *nombre_pokedex, Map *mapa_numero_pokedex, Map *pokemon_por_PC, Map *pokemon_por_region, int *total_pokemon, int *copia_id){
+    char nombre[101];
+    List *lista_tipos = create_list();
+    int pc;
+    int ps;
+    char sexo;
+    char evolucionPrevia[101];
+    char evolucionPosterior[101];
+    int numeroPokedex;
+    char region[101];
+    char *lectura = (char *)malloc(sizeof(char) * 100);
+    int cantidad_tipos;
+    int existencias = 1;
+    int id;
+
+    if(*total_pokemon<100){
+        //Nombre
+        printf("Ingrese el nombre del pokemon:");
+        scanf("%s", lectura);
+        pasar_mayus_primera_letra(lectura);
+        strcpy(nombre, formatear(lectura));
+        printf("\n");
+        lectura = (char *)malloc(sizeof(char) * 100);
+
+        //Tipos
+        printf("Ingrese el numero de cuantos tipos tiene:");
+        scanf("%i", &cantidad_tipos);
+        for(int i = 0; i<cantidad_tipos; i++){
+            printf("Ingrese el nombre del tipo %i :", (i + 1));
+            scanf("%s", lectura);
+            push_back(lista_tipos, formatear(lectura));
+            printf("\n");
+            lectura = (char *)malloc(sizeof(char) * 100);
+        }
+
+        //PC
+        printf("Ingrese el PC:");
+        scanf("%s", lectura);
+        pc = atoi(lectura);
+        printf("\n");
+        lectura = (char *)malloc(sizeof(char) * 100);
+
+        //PS
+        printf("Ingrese el PS:");
+        scanf("%s", lectura);
+        ps = atoi(lectura);
+        printf("\n");
+        lectura = (char *)malloc(sizeof(char) * 100);
+
+        //Sexo
+        printf("Ingrese el sexo (escriba Hembra o Macho):");
+        scanf("%s", lectura);
+        pasar_mayus_primera_letra(lectura);
+        if(strcmp(lectura, "Hembra") == 0){
+            sexo = 'F';
+        }else{
+            sexo = 'M';
+        }
+        lectura = (char *)malloc(sizeof(char) * 100);
+        printf("\n");
+
+        //Evolucion previa
+        printf("Ingrese la evolucion previa:");
+        scanf("%s", lectura);
+        pasar_mayus_primera_letra(lectura);
+        if(strcmp(lectura, "No") == 0){
+            scanf("%s", lectura);
+            strcpy(evolucionPrevia, "(--)");
+        }else{
+            strcpy(evolucionPrevia, formatear(lectura));
+        }
+        lectura = (char *)malloc(sizeof(char) * 100);
+        printf("\n");
+
+        //Evolucion Posterior
+        printf("Ingrese la evolucion posterior:");
+        scanf("%s", lectura);
+        pasar_mayus_primera_letra(lectura);
+        if(strcmp(lectura, "No") == 0){
+            strcpy(evolucionPosterior, "(--)");
+            scanf("%s", lectura);
+        }else{
+            strcpy(evolucionPosterior, formatear(lectura));
+        }
+        lectura = (char *)malloc(sizeof(char) * 100);
+        printf("\n");
+
+        //Numero Pokedex
+        printf("Ingrese el numero de la Pokedex:");
+        scanf("%s", lectura);
+        numeroPokedex = atoi(lectura);
+        buscar_en_pokedex(numeroPokedex, mapa_numero_pokedex);
+        lectura = (char *)malloc(sizeof(char) * 100);
+        printf("\n");
+        //Region
+        printf("Ingrese la region:");
+        scanf("%s", lectura);
+        strcpy(region, lectura);
+        lectura = (char *)malloc(sizeof(char) * 100);
+
+        //id
+        Almacenamiento *iterador = firstMap(pokemon_por_id);
+        *copia_id+= 1;
+        while (iterador)
+        {
+            if(*copia_id == iterador->id){
+                *copia_id += 1;
+            }
+            iterador = nextMap(pokemon_por_id);
+        }
+        id = *copia_id;
+        
+        //Agregar pokemon
+        Almacenamiento *almac = guardarAlmacenamiento(id, nombre, pc, ps, sexo);
+        Pokedex *pokedex = guardarPokedex(nombre, lista_tipos, evolucionPrevia, evolucionPosterior, numeroPokedex, existencias, region);
+        ingresar_en_mapas(almac, pokedex, pokemon_por_id, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex, pokemon_por_PC, pokemon_por_region);
+        printf("Pokemon agregado exitosamente\n");
+    }else{
+        printf("No se puede agregar pokemon, limite excedido\n");
+    }
 }
 
 //Función que muestra los pokémon de la pokédex por numero en pokédex
@@ -262,19 +401,6 @@ void mostrar_pokemones_almacenamiento(Map *pokemon_por_PC){
         printf("%d - %s - %d - %d - %c\n", almac->PC, almac->nombre, almac->id, almac->PS, almac->sexo);
         almac = nextMap(pokemon_por_PC);
     }
-}
-
-char *pasar_mayus_primera_letra(char *nombre){
-    int cantidad = strlen(nombre);
-    int i;
-    for(i = 0;i<cantidad; i++){
-        if(i == 0){
-            nombre[0] = toupper(nombre[0]);
-        }else{
-            nombre[i] = towlower(nombre[i]);
-        }
-    }
-    nombre[i] = '\0';
 }
 
 void pokemon_por_nombre(Map *pokemon_por_id){
@@ -364,6 +490,8 @@ int main(){
     setSortFunction(pokemon_por_region, lower_than_string);
 
     int escaneo;
+    int total_pokemon = 0;
+    int copia_id = 0;
     do{
         display_menu();
         scanf("%i", &escaneo);
@@ -371,9 +499,10 @@ int main(){
         switch (escaneo)
         {
         case 1:
-            importarArchivo(pokemon_id_almacenamiento, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex, pokemon_por_PC, pokemon_por_region);
+            importarArchivo(pokemon_id_almacenamiento, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex, pokemon_por_PC, pokemon_por_region, &total_pokemon, &copia_id);
             break;
         case 2:
+            agregar_pokemon(pokemon_id_almacenamiento, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex, pokemon_por_PC, pokemon_por_region, &total_pokemon, &copia_id);
             break;
         case 3:
             break;
