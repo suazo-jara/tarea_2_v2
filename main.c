@@ -460,6 +460,41 @@ void mostrar_pokemon_por_region(Map *mapa_numero_pokedex){
 
 }//pokemones.csv
 
+//Funcion busca el nombre en pokedex y muestra su informacion
+void mostra_nombre_pokedex(Map *nombre_pokedex){
+    char nombre[101];
+    printf("Ingrese el nombre que desea buscar en la pokedex\n");
+    scanf("%s", nombre);
+    pasar_mayus_primera_letra(nombre);
+    int cont = 0;
+
+    Pokedex *iterador =firstMap(nombre_pokedex);
+
+    while(iterador){
+        if(strcmp(iterador->nombre, nombre) == 0){
+            if(cont == 0){
+                printf("Nombre   /  existencia /   tipos     /      previa    /  posterior  /   numero pokedex /  region\n");
+            }
+            printf("%s    -     %i    -        ", iterador->nombre, iterador->existencias);
+            List *lista = first(iterador->tipos);
+            while (lista){
+                printf("%s", lista);
+                lista = next(iterador->tipos);
+                if (lista) printf(" / ");
+            }
+            printf("    %s    -   %s       -       %i    -     %s\n",  iterador->evo_previa, iterador->evo_posterior, iterador->numero, iterador->region);
+            
+            cont = 1;
+        }
+        iterador = nextMap(nombre_pokedex);
+    }
+
+    //No se encontro el pokemon
+    if(cont == 0){
+        printf("----No se encuentra informacion del pokemon ingresado----\n");
+    }
+}
+
 int main(){
     //Mapa que guarda los pokémon en el almacenamiento con clave ID de pokémon
     Map *pokemon_id_almacenamiento = createMap(is_equal_int);
@@ -513,6 +548,8 @@ int main(){
             pokemon_por_nombre(pokemon_id_almacenamiento);
             break;
         case 6:
+        //Mostrar nombre en pokedex
+            mostra_nombre_pokedex(nombre_pokedex);
             break;
         case 7:
         //Mostrar pokémon en pokédex por número en pokédex    
