@@ -4,7 +4,7 @@ Funciones y detalles:
 
 1: falta implementar una función que exporte los datos a un archivo .csv.
 
-2: -- SIN IMPLEMENTAR --
+2: // FUNCIÓN HECHA //
 
 3: -- SIN IMPLEMENTAR --
 
