@@ -2,11 +2,13 @@
 
 Funciones y detalles:
 
-1: falta implementar una función que exporte los datos a un archivo .csv.
+1: Falta implementar una función que exporte los datos a un archivo .csv.
 
 2: // FUNCIÓN HECHA //
 
-3: -- SIN IMPLEMENTAR --
+3: // FUNCIÓN HECHA // 
+
+    Si la evolución de un pokémon no se encuentra en la pokédex, luego de evolucionar a este pokémon, no figurará al mostrar a los pokémon en la pokédex (por sugerencia del profesor).
 
 4: -- SIN IMPLEMENTAR --
 
@@ -18,6 +20,6 @@ Funciones y detalles:
 
 8: // FUNCIÓN HECHA //
 
-9: -- SIN IMPLEMENTAR --
+9: // FUNCIÓN HECHA //
 
 10: // FUNCIÓN HECHA //
