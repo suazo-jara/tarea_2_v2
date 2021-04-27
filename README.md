@@ -10,7 +10,7 @@ Funciones y detalles:
 
     Si la evolución de un pokémon no se encuentra en la pokédex, luego de evolucionar a este pokémon, no figurará al mostrar a los pokémon en la pokédex (por sugerencia del profesor).
 
-4: -- SIN IMPLEMENTAR --
+4: // FUNCIÓN HECHA //
 
 5: // FUNCIÓN HECHA //
 
