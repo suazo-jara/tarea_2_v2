@@ -29,11 +29,6 @@ int is_equal_string(void * key1, void * key2) {
     return 0;
 }
 
-////Función para comparar claves de tipo string. Retorna 0 si son iguales
-int is_unequal_string(void * key1, void * key2) {
-    return 0;
-}
-
 //Función para comparar claves de tipo string. Retorna 1 si  key1 < key2
 int lower_than_string(void * key1, void * key2) {
     if(strcmp((char*)key1, (char*)key2) < 0) return 1;
@@ -102,17 +97,9 @@ Pokedex *guardarPokedex(char *nombre, List *tipos, char *evo_previa, char *evo_p
 }
 
 //Función para ingresar los datos nuevos en la pokédex y en el almacenamiento
-void ingresar_en_mapas(Almacenamiento *almac, Pokedex *pokedex, Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_almacenamiento, Map *nombre_pokedex, Map *mapa_numero_pokedex){
+void ingresar_en_mapas(Almacenamiento *almac, Pokedex *pokedex, Map *pokemon_por_id, Map *pokemon_por_tipo, Map *mapa_numero_pokedex){
     insertMap(pokemon_por_id, &almac->id, almac);
-    insertMap(nombre_almacenamiento, almac->nombre, almac);
-    insertMap(nombre_pokedex, almac->nombre, pokedex);
     insertMap(mapa_numero_pokedex, &pokedex->numero, pokedex);
-    
-    List * iterador = first(pokedex->tipos);
-    while(iterador){
-        insertMap(pokemon_por_tipo, iterador, pokedex);
-        iterador = next(pokedex->tipos);
-    }
     
     //printf("%d - %s - %d - %d - %c\n", almac->id, almac->nombre, almac->PC, almac->PS, almac->sexo);
     //printf("%s - %s - %s - %d - %s\n", pokedex->nombre, pokedex->evo_previa, pokedex->evo_posterior, pokedex->numero, pokedex->region);
@@ -131,7 +118,7 @@ void buscar_en_pokedex(int numero_pokedex, Map *mapa_numero_pokedex){
 }
 
 //Función que lee el archivo
-void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_almacenamiento, Map *nombre_pokedex, Map *mapa_numero_pokedex, int *total_pokemon, int *copia_id)
+void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *mapa_numero_pokedex, int *total_pokemon, int *copia_id)
 {
     char *lectura = (char *)malloc(sizeof(char) * 100);
     char nombre_archivo[101];
@@ -216,7 +203,7 @@ void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_alm
             *copia_id = id;
             Almacenamiento *almac = guardarAlmacenamiento(id, nombre, PC, PS, sexo);
             Pokedex *pokedex = guardarPokedex(nombre, lista_tipos, evo_previa, evo_posterior, numero_pokedex, existencias, region);
-            ingresar_en_mapas(almac, pokedex, pokemon_por_id, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex);
+            ingresar_en_mapas(almac, pokedex, pokemon_por_id, pokemon_por_tipo, mapa_numero_pokedex);
             cont_datos = 0;
             total_tipos = 0;
             existencias = 1;
@@ -258,7 +245,7 @@ char *pasar_mayus_primera_letra(char *nombre){
 }
 
 //Funcion que agrega un pokémon al almacenamiento y su existencia en la pokédex
-void agregar_pokemon(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_almacenamiento, Map *nombre_pokedex, Map *mapa_numero_pokedex, int *total_pokemon, int *copia_id){
+void agregar_pokemon(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *mapa_numero_pokedex, int *total_pokemon, int *copia_id){
     char nombre[101];
     List *lista_tipos = create_list();
     int pc;
@@ -366,8 +353,8 @@ void agregar_pokemon(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *nombre_alm
         //Agregar pokemon
         Almacenamiento *almac = guardarAlmacenamiento(id, nombre, pc, ps, sexo);
         Pokedex *pokedex = guardarPokedex(nombre, lista_tipos, evolucionPrevia, evolucionPosterior, numeroPokedex, existencias, region);
-        ingresar_en_mapas(almac, pokedex, pokemon_por_id, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex);
-        printf("Pokemon agregado exitosamente\n");
+        ingresar_en_mapas(almac, pokedex, pokemon_por_id, pokemon_por_tipo, mapa_numero_pokedex);
+        printf("%s agregado exitosamente con ID %d en almacenamiento\n", nombre, id);
     }else{
         printf("No se puede agregar pokemon, limite excedido\n");
     }
@@ -559,6 +546,61 @@ void mostrar_nombre_pokedex(Map *mapa_numero_pokedex){
         printf("----No se encuentra informacion del pokemon ingresado----\n");
 }
 
+void mostrar_por_tipo(Map *mapa_numero_pokedex, Map *mapa_numero_almacenamiento){
+    //Mapa utilizado para buscar pokémon por tipo
+    Map *mapa_tipos = createMap(is_equal_string);
+    setSortFunction(mapa_tipos, lower_than_string);
+    
+    Almacenamiento *pokemon_almacenamiento;
+    Pokedex *numero_pokedex;
+    List *tipo_pokemon;
+    List *iterador;
+
+    char lectura[15];
+
+    numero_pokedex = firstMap(mapa_numero_pokedex); //Iterador nivel 1: recorre mapa pokédex por número
+    while(numero_pokedex){    
+        tipo_pokemon = first(numero_pokedex->tipos); //Iterador nivel 2: recorre lista de tipos del pokémon
+        while(tipo_pokemon){
+            pokemon_almacenamiento = firstMap(mapa_numero_almacenamiento);
+            while(pokemon_almacenamiento){
+                if (strcmp(pokemon_almacenamiento->nombre, numero_pokedex->nombre) == 0){
+                    iterador = searchMap(mapa_tipos, tipo_pokemon); //Iterador nivel 3: 
+                    if (!iterador){
+                        iterador = create_list();
+                    }
+                    push_back(iterador, pokemon_almacenamiento);
+                    eraseMap(mapa_tipos, tipo_pokemon);
+                    insertMap(mapa_tipos, tipo_pokemon, iterador);
+                }
+                pokemon_almacenamiento = nextMap(mapa_numero_almacenamiento);
+            }
+            tipo_pokemon = next(numero_pokedex->tipos);
+        }
+        numero_pokedex = nextMap(mapa_numero_pokedex);
+    }
+
+    printf("Ingrese el tipo elemental que desea buscar: ");
+    scanf("%s", lectura);
+    formatear(lectura);
+
+    tipo_pokemon = searchMap(mapa_tipos, lectura);
+    if (tipo_pokemon){
+        pokemon_almacenamiento = first(tipo_pokemon);
+        if(pokemon_almacenamiento){
+            while(pokemon_almacenamiento){
+                printf("%s - %i - %i - %i - %c\n", pokemon_almacenamiento->nombre, pokemon_almacenamiento->id, pokemon_almacenamiento->PC, pokemon_almacenamiento->PS, pokemon_almacenamiento->sexo);
+                pokemon_almacenamiento = next(tipo_pokemon);
+            }
+        }
+        else{
+            printf("No hay existencia de pokemon tipo %s en el almacenamiento.\n", lectura);
+        }
+    }
+    else printf("No existe este tipo de pokemon en la pokedex.\n");
+
+}
+
 int main(){
     //Mapa que guarda los pokémon en el almacenamiento con clave ID de pokémon
     Map *pokemon_id_almacenamiento = createMap(is_equal_int);
@@ -572,14 +614,6 @@ int main(){
     Map *pokemon_por_tipo = createMap(is_equal_string);
     setSortFunction(pokemon_por_tipo, lower_than_string);
 
-    //Mapa utilizado para buscar pokémon por nombre
-    Map *nombre_almacenamiento = createMap(is_equal_string);
-    setSortFunction(nombre_almacenamiento, lower_than_string);
-
-    //Mapa utilizado para buscar pokémon por nombre en pokédex
-    Map *nombre_pokedex = createMap(is_equal_string);
-    setSortFunction(nombre_pokedex, lower_than_string);
-
     int escaneo;
     int total_pokemon = 0;
     int copia_id = 0;
@@ -590,19 +624,21 @@ int main(){
         switch (escaneo)
         {
         case 1:
-            importarArchivo(pokemon_id_almacenamiento, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex, &total_pokemon, &copia_id);
+            importarArchivo(pokemon_id_almacenamiento, pokemon_por_tipo, mapa_numero_pokedex, &total_pokemon, &copia_id);
             break;
         case 2:
-            agregar_pokemon(pokemon_id_almacenamiento, pokemon_por_tipo, nombre_almacenamiento, nombre_pokedex, mapa_numero_pokedex, &total_pokemon, &copia_id);
+            agregar_pokemon(pokemon_id_almacenamiento, pokemon_por_tipo, mapa_numero_pokedex, &total_pokemon, &copia_id);
             break;
         case 3:
         //Evolucionar pokémon por ID
             evolucionarPokemon(pokemon_id_almacenamiento, mapa_numero_pokedex);
             break;
         case 4:
+        //Mostrar pokémon por tipo
+            mostrar_por_tipo(mapa_numero_pokedex, pokemon_id_almacenamiento);
             break;
         case 5:
-        //Mostrar a los pokémon por el nombre que ingrese el usuario
+        //Mostrar a los pokémon en el almacenamiento por el nombre que ingrese el usuario
             pokemon_por_nombre(pokemon_id_almacenamiento);
             break;
         case 6:
@@ -610,7 +646,7 @@ int main(){
             mostrar_nombre_pokedex(mapa_numero_pokedex);
             break;
         case 7:
-        //Mostrar pokémon en pokédex por número en pokédex    
+        //Mostrar pokémon en pokédex por orden de número en pokédex    
             mostrar_pokemones_pokedex(mapa_numero_pokedex);
             break;
         case 8:
@@ -622,6 +658,7 @@ int main(){
             liberarPokemon(pokemon_id_almacenamiento, mapa_numero_pokedex);
             break;
         case 10:
+        //Mostrar pokémon por región
             mostrar_pokemon_por_region(mapa_numero_pokedex);
             break;
         case 0:
