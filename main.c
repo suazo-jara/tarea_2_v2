@@ -58,6 +58,7 @@ int greater_than_int(void * key1, void * key2) {
     return 0;
 }
 
+//Función que formatea las lecturas (elimina espacios y cambia a mayúsculas las iniciales)
 char *formatear(char *lectura){
     int largo_palabra = strlen(lectura);
     int j = 0;
@@ -100,11 +101,9 @@ Pokedex *guardarPokedex(char *nombre, List *tipos, char *evo_previa, char *evo_p
 void ingresar_en_mapas(Almacenamiento *almac, Pokedex *pokedex, Map *pokemon_por_id, Map *pokemon_por_tipo, Map *mapa_numero_pokedex){
     insertMap(pokemon_por_id, &almac->id, almac);
     insertMap(mapa_numero_pokedex, &pokedex->numero, pokedex);
-    
-    //printf("%d - %s - %d - %d - %c\n", almac->id, almac->nombre, almac->PC, almac->PS, almac->sexo);
-    //printf("%s - %s - %s - %d - %s\n", pokedex->nombre, pokedex->evo_previa, pokedex->evo_posterior, pokedex->numero, pokedex->region);
 }
 
+//Función que agrega una existencia a un pokémon en la pokédex si se agrega otro de su mismo número
 void buscar_en_pokedex(int numero_pokedex, Map *mapa_numero_pokedex){
     Pokedex *pokedex = firstMap(mapa_numero_pokedex);
     while(pokedex){
@@ -117,13 +116,13 @@ void buscar_en_pokedex(int numero_pokedex, Map *mapa_numero_pokedex){
     return;
 }
 
-//Función que lee el archivo
+//Función que lee un archivo
 void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *mapa_numero_pokedex, int *total_pokemon, int *copia_id)
 {
     char *lectura = (char *)malloc(sizeof(char) * 100);
     char nombre_archivo[101];
 
-    printf("Ingrese el nombre del archivo\n");
+    printf("Ingrese el nombre del archivo: ");
     scanf("%[^\n]s", nombre_archivo);
 
     FILE *archivo = fopen(nombre_archivo, "r");
@@ -212,12 +211,13 @@ void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *mapa_numer
         }
         lectura = (char *)malloc(sizeof(char) * 100);
     }
+    fclose(archivo);
 }
 
 //Función que muestra las opciones del menu
 void display_menu(){
-    printf("Escoja una opcion del menu\n");
-    printf("1. Importar/Exportar desde un archivo CSV.\n");
+    printf("------------ MENU ------------\n");
+    printf("1. Importar desde un archivo .csv.\n");
     printf("2. Pokemon atrapado.\n");
     printf("3. Evolucionar pokemon.\n");
     printf("4. Buscar mis pokemon por tipo.\n");
@@ -227,21 +227,10 @@ void display_menu(){
     printf("8. Mostrar mis pokemon ordenados por PC.\n");
     printf("9. Liberar pokemon.\n");
     printf("10. Mostrar pokemon por region.\n");
+    printf("11. Exportar a un archivo .csv.\n");
     printf("0. Salir.\n");
-}
 
-//Funcion que pasa a mayúscula la primera letra
-char *pasar_mayus_primera_letra(char *nombre){
-    int cantidad = strlen(nombre);
-    int i;
-    for(i = 0;i<cantidad; i++){
-        if(i == 0){
-            nombre[0] = toupper(nombre[0]);
-        }else{
-            nombre[i] = towlower(nombre[i]);
-        }
-    }
-    nombre[i] = '\0';
+    printf("Escoja una opcion del menu: ");
 }
 
 //Funcion que agrega un pokémon al almacenamiento y su existencia en la pokédex
@@ -377,7 +366,7 @@ void mostrar_pokemones_pokedex( Map *mapa_numero_pokedex){
     }
 }
 
-//Función que muestra pokémon del almacenamiento por PC
+//Función que muestra pokémon del almacenamiento en orden de PC
 void mostrarAlmacenamientoPC(Map *pokemon_id_almacenamiento){
 
     //Mapa que guarda a los pokémon por PC en orden de mayor a menor
@@ -397,6 +386,7 @@ void mostrarAlmacenamientoPC(Map *pokemon_id_almacenamiento){
     }
 }
 
+//Función que muestra a los pokémon en el almacenamiento dado su nombre
 void pokemon_por_nombre(Map *pokemon_por_id){
     char nombre[101];
     printf("Ingrese el nombre que desea buscar\n");
@@ -546,6 +536,7 @@ void mostrar_nombre_pokedex(Map *mapa_numero_pokedex){
         printf("----No se encuentra informacion del pokemon ingresado----\n");
 }
 
+//Función que muestra a los pokémon por tipo
 void mostrar_por_tipo(Map *mapa_numero_pokedex, Map *mapa_numero_almacenamiento){
     //Mapa utilizado para buscar pokémon por tipo
     Map *mapa_tipos = createMap(is_equal_string);
@@ -599,6 +590,43 @@ void mostrar_por_tipo(Map *mapa_numero_pokedex, Map *mapa_numero_almacenamiento)
     }
     else printf("No existe este tipo de pokemon en la pokedex.\n");
 
+}
+
+//Función que exporta la lista de pokémon
+void exportarArchivo(Map *pokemon_id_almacenamiento, Map *mapa_numero_pokedex){
+    char *lectura = (char *)malloc(sizeof(char) * 100);
+    char nombre_archivo[101];
+    Pokedex *ficha_pokemon;
+    Almacenamiento *pokemon;
+    List *iterador_tipos;
+
+    printf("Ingrese el nombre del archivo: ");
+    scanf("%[^\n]s", nombre_archivo);
+
+    FILE *archivo = fopen(nombre_archivo, "w");
+    //if (archivo) printf("El archivo %s ya existe.\n", nombre_archivo);
+    //else{
+    fprintf(archivo, "id,nombre,tipos,pc,ps,sexo,evolucion previa,evolucion posterior,numero pokedex,region\n");
+
+    //Mapa nombre pokédex
+    Map *mapa_nombre_pokedex = createMap(is_equal_string);
+
+    ficha_pokemon = firstMap(mapa_numero_pokedex);
+    while(ficha_pokemon){
+        insertMap(mapa_nombre_pokedex, ficha_pokemon->nombre, ficha_pokemon);
+        ficha_pokemon = nextMap(mapa_numero_pokedex);
+    }
+    
+    pokemon = firstMap(pokemon_id_almacenamiento);
+    while(pokemon){
+        ficha_pokemon = searchMap(mapa_nombre_pokedex, pokemon->nombre);
+        fprintf(archivo, "%d,%s,TIPOS,", pokemon->id, pokemon->nombre);
+
+        fprintf(archivo, "%d,%d,%c,%s,%s,%d,%s\n", pokemon->PC, pokemon->PS, pokemon->sexo, ficha_pokemon->evo_previa, ficha_pokemon->evo_posterior, ficha_pokemon->numero, ficha_pokemon->region);
+        pokemon = nextMap(pokemon_id_almacenamiento);
+    }
+
+    fclose(archivo);
 }
 
 int main(){
@@ -660,6 +688,9 @@ int main(){
         case 10:
         //Mostrar pokémon por región
             mostrar_pokemon_por_region(mapa_numero_pokedex);
+            break;
+        case 11:
+            exportarArchivo(pokemon_id_almacenamiento, mapa_numero_pokedex);
             break;
         case 0:
             return 0;
