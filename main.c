@@ -596,6 +596,8 @@ void mostrar_por_tipo(Map *mapa_numero_pokedex, Map *mapa_numero_almacenamiento)
 void exportarArchivo(Map *pokemon_id_almacenamiento, Map *mapa_numero_pokedex){
     char *lectura = (char *)malloc(sizeof(char) * 100);
     char nombre_archivo[101];
+    int verificar = 0;
+    int primera_vez = 0;
     Pokedex *ficha_pokemon;
     Almacenamiento *pokemon;
     List *iterador_tipos;
@@ -620,9 +622,65 @@ void exportarArchivo(Map *pokemon_id_almacenamiento, Map *mapa_numero_pokedex){
     pokemon = firstMap(pokemon_id_almacenamiento);
     while(pokemon){
         ficha_pokemon = searchMap(mapa_nombre_pokedex, pokemon->nombre);
-        fprintf(archivo, "%d,%s,TIPOS,", pokemon->id, pokemon->nombre);
+        fprintf(archivo, "%d,%s", pokemon->id, pokemon->nombre);
 
-        fprintf(archivo, "%d,%d,%c,%s,%s,%d,%s\n", pokemon->PC, pokemon->PS, pokemon->sexo, ficha_pokemon->evo_previa, ficha_pokemon->evo_posterior, ficha_pokemon->numero, ficha_pokemon->region);
+        iterador_tipos = first(ficha_pokemon->tipos);
+        iterador_tipos = next(ficha_pokemon->tipos);
+        verificar = 0;
+        primera_vez = 0;
+        //Verifica que exista uno tipo despues
+        if(iterador_tipos != NULL){
+            verificar = 1;
+        }
+        
+        iterador_tipos = first(ficha_pokemon->tipos);
+        while(iterador_tipos){
+            if(verificar == 1){
+                if(primera_vez == 0){
+                    //Muestra comillas
+                    fprintf(archivo, ",\"");
+                    fprintf(archivo, "%s",iterador_tipos);
+                    iterador_tipos = next(ficha_pokemon->tipos);
+                    primera_vez = 1;
+                }else{
+                    fprintf(archivo, ", ");
+                    fprintf(archivo, "%s",iterador_tipos);
+                    iterador_tipos = next(ficha_pokemon->tipos);
+                }
+            }else{
+                fprintf(archivo, ",%s",iterador_tipos);
+                iterador_tipos = next(ficha_pokemon->tipos);
+            }
+        }
+
+        if(verificar == 1){
+            //Muestra comillas
+            fprintf(archivo, "\"");
+        }
+        
+
+        fprintf(archivo, ",%d,%d,", pokemon->PC, pokemon->PS);
+        //Mostrar sexo
+        if(pokemon->sexo == 'M'){
+            fprintf(archivo, "Macho,");
+        }else{
+            fprintf(archivo, "Hembra,");
+        }
+        //Mostrar evolucion previa
+        if(strcmp(ficha_pokemon->evo_previa,"(--)") == 0){
+            fprintf(archivo, "No tiene,");
+        }else{
+            fprintf(archivo, "%s,", ficha_pokemon->evo_previa);
+        }
+        //Mostrar evolucion posterior
+        if(strcmp(ficha_pokemon->evo_posterior,"(--)") == 0){
+            fprintf(archivo, "No tiene,");
+        }else{
+            fprintf(archivo, "%s,", ficha_pokemon->evo_posterior);
+        }
+        fprintf(archivo, "%i,%s\n", ficha_pokemon->numero, ficha_pokemon->region);
+
+
         pokemon = nextMap(pokemon_id_almacenamiento);
     }
 
