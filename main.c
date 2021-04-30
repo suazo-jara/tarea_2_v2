@@ -666,10 +666,14 @@ void exportarArchivo(Map *pokemon_id_almacenamiento, Map *mapa_numero_pokedex){
 
         fprintf(archivo, ",%d,%d,", pokemon->PC, pokemon->PS);
         //Mostrar sexo
-        if(pokemon->sexo == 'M'){
-            fprintf(archivo, "Macho,");
+        if(pokemon->sexo == '/'){
+            fprintf(archivo, "No tiene,");
         }else{
-            fprintf(archivo, "Hembra,");
+            if(pokemon->sexo == 'M'){
+                fprintf(archivo, "Macho,");
+            }else{
+                fprintf(archivo, "Hembra,");
+            }
         }
         //Mostrar evolucion previa
         if(strcmp(ficha_pokemon->evo_previa,"(--)") == 0){
