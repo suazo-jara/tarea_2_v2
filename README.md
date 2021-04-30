@@ -2,7 +2,7 @@
 
 Funciones y detalles:
 
-1: Falta implementar una función que exporte los datos a un archivo .csv.
+1: // FUNCIÓN HECHA //
 
 2: // FUNCIÓN HECHA //
 
