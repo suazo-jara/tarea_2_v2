@@ -180,8 +180,13 @@ void importarArchivo(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *mapa_numer
         if (cont_datos == 3) PC = atoi(lectura);
         if (cont_datos == 4) PS = atoi(lectura);
         if (cont_datos == 5){
-            if(strcmp("Hembra", lectura) == 0) sexo = 'F';
-            else sexo = 'M';
+
+            if(strcmp("No tiene",lectura)==0){
+             sexo = '/';
+            }else{
+                if(strcmp("Hembra", lectura) == 0) sexo = 'F';
+                else sexo = 'M';
+            }         
         }
         if (cont_datos == 6){
             if(strcmp("No tiene", lectura) == 0) strcpy(evo_previa, "(--)");
