@@ -372,11 +372,7 @@ void mostrar_pokemones_pokedex( Map *mapa_numero_pokedex){
 }
 
 //Función que muestra pokémon del almacenamiento en orden de PC
-void mostrarAlmacenamientoPC(Map *pokemon_id_almacenamiento){
-
-    //Mapa que guarda a los pokémon por PC en orden de mayor a menor
-    Map *pokemon_por_PC = createMap(is_unequal_int);
-    setSortFunction(pokemon_por_PC, greater_than_int);
+void mostrarAlmacenamientoPC(Map *pokemon_id_almacenamiento, Map *pokemon_por_PC){
 
     Almacenamiento *pokemon = firstMap(pokemon_id_almacenamiento);
     while(pokemon){
@@ -542,11 +538,8 @@ void mostrar_nombre_pokedex(Map *mapa_numero_pokedex){
 }
 
 //Función que muestra a los pokémon por tipo
-void mostrar_por_tipo(Map *mapa_numero_pokedex, Map *mapa_numero_almacenamiento){
-    //Mapa utilizado para buscar pokémon por tipo
-    Map *mapa_tipos = createMap(is_equal_string);
-    setSortFunction(mapa_tipos, lower_than_string);
-    
+void mostrar_por_tipo(Map *mapa_numero_pokedex, Map *mapa_numero_almacenamiento, Map *mapa_tipos){
+
     Almacenamiento *pokemon_almacenamiento;
     Pokedex *numero_pokedex;
     List *tipo_pokemon;
@@ -598,7 +591,7 @@ void mostrar_por_tipo(Map *mapa_numero_pokedex, Map *mapa_numero_almacenamiento)
 }
 
 //Función que exporta la lista de pokémon
-void exportarArchivo(Map *pokemon_id_almacenamiento, Map *mapa_numero_pokedex){
+void exportarArchivo(Map *pokemon_id_almacenamiento, Map *mapa_numero_pokedex, Map *mapa_nombre_pokedex){
     char *lectura = (char *)malloc(sizeof(char) * 100);
     char nombre_archivo[101];
     int verificar = 0;
@@ -614,9 +607,6 @@ void exportarArchivo(Map *pokemon_id_almacenamiento, Map *mapa_numero_pokedex){
     //if (archivo) printf("El archivo %s ya existe.\n", nombre_archivo);
     //else{
     fprintf(archivo, "id,nombre,tipos,pc,ps,sexo,evolucion previa,evolucion posterior,numero pokedex,region\n");
-
-    //Mapa nombre pokédex
-    Map *mapa_nombre_pokedex = createMap(is_equal_string);
 
     ficha_pokemon = firstMap(mapa_numero_pokedex);
     while(ficha_pokemon){
@@ -709,6 +699,17 @@ int main(){
     Map *pokemon_por_tipo = createMap(is_equal_string);
     setSortFunction(pokemon_por_tipo, lower_than_string);
 
+    //Mapa que guarda a los pokémon por PC en orden de mayor a menor
+    Map *pokemon_por_PC = createMap(is_unequal_int);
+    setSortFunction(pokemon_por_PC, greater_than_int);
+
+    //Mapa utilizado para buscar pokémon por tipo
+    Map *mapa_tipos = createMap(is_equal_string);
+    setSortFunction(mapa_tipos, lower_than_string);
+
+    //Mapa nombre pokédex
+    Map *mapa_nombre_pokedex = createMap(is_equal_string);
+
     int escaneo;
     int total_pokemon = 0;
     int copia_id = 0;
@@ -719,9 +720,11 @@ int main(){
         switch (escaneo)
         {
         case 1:
+        //Importar archivo
             importarArchivo(pokemon_id_almacenamiento, pokemon_por_tipo, mapa_numero_pokedex, &total_pokemon, &copia_id);
             break;
         case 2:
+        //Agrega un nuevo pokemon
             agregar_pokemon(pokemon_id_almacenamiento, pokemon_por_tipo, mapa_numero_pokedex, &total_pokemon, &copia_id);
             break;
         case 3:
@@ -730,7 +733,7 @@ int main(){
             break;
         case 4:
         //Mostrar pokémon por tipo
-            mostrar_por_tipo(mapa_numero_pokedex, pokemon_id_almacenamiento);
+            mostrar_por_tipo(mapa_numero_pokedex, pokemon_id_almacenamiento, mapa_tipos);
             break;
         case 5:
         //Mostrar a los pokémon en el almacenamiento por el nombre que ingrese el usuario
@@ -746,7 +749,7 @@ int main(){
             break;
         case 8:
         //Mostrar pokémon en almacenamiento por PC
-            mostrarAlmacenamientoPC(pokemon_id_almacenamiento);
+            mostrarAlmacenamientoPC(pokemon_id_almacenamiento, pokemon_por_PC);
             break;
         case 9:
         //Liberar pokemon por ID
@@ -757,7 +760,8 @@ int main(){
             mostrar_pokemon_por_region(mapa_numero_pokedex);
             break;
         case 11:
-            exportarArchivo(pokemon_id_almacenamiento, mapa_numero_pokedex);
+        //Exportar archivo
+            exportarArchivo(pokemon_id_almacenamiento, mapa_numero_pokedex, mapa_nombre_pokedex);
             break;
         case 0:
             return 0;
