@@ -538,7 +538,11 @@ void mostrar_nombre_pokedex(Map *mapa_numero_pokedex){
 }
 
 //Función que muestra a los pokémon por tipo
-void mostrar_por_tipo(Map *mapa_numero_pokedex, Map *mapa_numero_almacenamiento, Map *mapa_tipos){
+void mostrar_por_tipo(Map *mapa_numero_pokedex, Map *mapa_numero_almacenamiento){
+
+    //Mapa utilizado para buscar pokémon por tipo (se necesita crear aca para que al momento de mostrar los tipos no se repitan los nombres)
+    Map *mapa_tipos = createMap(is_equal_string);
+    setSortFunction(mapa_tipos, lower_than_string);
 
     Almacenamiento *pokemon_almacenamiento;
     Pokedex *numero_pokedex;
@@ -733,7 +737,7 @@ int main(){
             break;
         case 4:
         //Mostrar pokémon por tipo
-            mostrar_por_tipo(mapa_numero_pokedex, pokemon_id_almacenamiento, mapa_tipos);
+            mostrar_por_tipo(mapa_numero_pokedex, pokemon_id_almacenamiento);
             break;
         case 5:
         //Mostrar a los pokémon en el almacenamiento por el nombre que ingrese el usuario
