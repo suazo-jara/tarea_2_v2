@@ -5,6 +5,7 @@
 #include "Map.h"
 #include "list.h"
 
+//Estructura que guarda la ficha de cada pokémon individual
 typedef struct{
     int id;
     char nombre[30];
@@ -13,6 +14,7 @@ typedef struct{
     char sexo;
 }Almacenamiento;
 
+//Estructura que guarda la ficha de cada pokémon en la pokédex
 typedef struct{
     char nombre[30];
     int existencias;
@@ -627,7 +629,7 @@ void exportarArchivo(Map *pokemon_id_almacenamiento, Map *mapa_numero_pokedex, M
         iterador_tipos = next(ficha_pokemon->tipos);
         verificar = 0;
         primera_vez = 0;
-        //Verifica que exista uno tipo despues
+        //Verifica que exista un tipo despues
         if(iterador_tipos != NULL){
             verificar = 1;
         }
@@ -706,10 +708,6 @@ int main(){
     //Mapa que guarda a los pokémon por PC en orden de mayor a menor
     Map *pokemon_por_PC = createMap(is_unequal_int);
     setSortFunction(pokemon_por_PC, greater_than_int);
-
-    //Mapa utilizado para buscar pokémon por tipo
-    Map *mapa_tipos = createMap(is_equal_string);
-    setSortFunction(mapa_tipos, lower_than_string);
 
     //Mapa nombre pokédex
     Map *mapa_nombre_pokedex = createMap(is_equal_string);
