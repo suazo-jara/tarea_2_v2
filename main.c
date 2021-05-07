@@ -359,10 +359,11 @@ void agregar_pokemon(Map *pokemon_por_id, Map *pokemon_por_tipo, Map *mapa_numer
 //Función que muestra los pokémon de la pokédex por numero en pokédex
 void mostrar_pokemones_pokedex( Map *mapa_numero_pokedex){
     Pokedex *pokedex = firstMap(mapa_numero_pokedex);
+    printf("\n\n Nombre               Ev. Prev        Ev. Post        Numero         Region          Existencias          Tipo\n");
+    printf("-----------------------------------------------------------------------------------------------------------------------\n");
     while(pokedex){
-        printf("%d - %s - EN EXISTENCIA: %d - %s - %s - %s - ", pokedex->numero, pokedex->nombre, pokedex->existencias, pokedex->evo_previa, pokedex->evo_posterior, pokedex->region);
+        printf("|%-20.20s %-15s %-15s %-15d %-15s %-20d", pokedex->nombre, pokedex->evo_previa, pokedex->evo_posterior, pokedex->numero, pokedex->region, pokedex->existencias);
         List *iterador = first(pokedex->tipos);
-        printf("TIPOS: ");
         while(iterador){
             printf("%s", iterador);
             iterador = next(pokedex->tipos);
@@ -371,6 +372,8 @@ void mostrar_pokemones_pokedex( Map *mapa_numero_pokedex){
         printf("\n");
         pokedex = nextMap(mapa_numero_pokedex);
     }
+    printf("-----------------------------------------------------------------------------------------------------------------------\n\n\n");
+    
 }
 
 //Función que muestra pokémon del almacenamiento en orden de PC
@@ -383,10 +386,13 @@ void mostrarAlmacenamientoPC(Map *pokemon_id_almacenamiento, Map *pokemon_por_PC
     }
     
     Almacenamiento *almac = firstMap(pokemon_por_PC);
+    printf("\n\n PC   Nombre          Id PS Sexo\n ");
+    printf("--------------------------------\n");
     while(almac){
-        printf("%d - %s - %d - %d - %c\n", almac->PC, almac->nombre, almac->id, almac->PS, almac->sexo);
+        printf("|%-4.4d %-15s %-2d %-3d %-2c |\n",almac->PC, almac->nombre, almac->id, almac->PS, almac->sexo);
         almac = nextMap(pokemon_por_PC);
     }
+    printf("--------------------------------\n\n\n");
 }
 
 //Función que muestra a los pokémon en el almacenamiento dado su nombre
@@ -398,13 +404,23 @@ void pokemon_por_nombre(Map *pokemon_por_id){
     Almacenamiento *iterador = firstMap(pokemon_por_id);
 
     int cont = 0;
+    int aux=0;
 
-    while(iterador){
+ while(iterador){
+
         if(strcmp(nombre, iterador->nombre) == 0){
-            printf("%s - %i - %i - %i - %c\n", iterador->nombre, iterador->id , iterador->PC, iterador->PS, iterador->sexo);
+            if(aux==0){
+                printf("\n\nNombre            Id     PC     PS    Sexo  \n");
+                printf("-----------------------------------------------\n");
+                aux++;
+            }
+            printf("|%-12s -%5i -%5i -%5i - %3c      |\n", iterador->nombre, iterador->id , iterador->PC, iterador->PS, iterador->sexo);
             cont = 1;
         }
         iterador = nextMap(pokemon_por_id);
+    }
+    if(aux>0){
+       printf("-----------------------------------------------\n\n\n"); 
     }
     if(cont == 0){
         printf("No se encuentra un pokemon con ese nombre\n");
@@ -522,15 +538,16 @@ void mostrar_nombre_pokedex(Map *mapa_numero_pokedex){
 
     while(iterador){
         if(strcmp(iterador->nombre, nombre) == 0){
-            printf("Nombre   /  existencia /   tipos     /      previa    /  posterior  /   numero pokedex /  region\n");
-            printf("%s    -     %i    -        ", iterador->nombre, iterador->existencias);
-            List *lista = first(iterador->tipos);
-            while (lista){
-                printf("%s", lista);
-                lista = next(iterador->tipos);
-                if (lista) printf(" / ");
+            printf("\n\n Nombre               Ev. Prev        Ev. Post        Numero         Existencias          Tipo\n");
+            printf("----------------------------------------------------------------------------------------------------------\n");
+            printf("|%-20.20s %-15s %-15s %-15d %-20d", iterador->nombre, iterador->evo_previa, iterador->evo_posterior, iterador->numero, iterador->existencias);
+            List *p = first(iterador->tipos);
+            while(p){
+                printf("%s", p);
+                p = next(iterador->tipos);
+                if (p) printf(" / ");
             }
-            printf("    %s    -   %s       -       %i    -     %s\n",  iterador->evo_previa, iterador->evo_posterior, iterador->numero, iterador->region);
+            printf("\n----------------------------------------------------------------------------------------------------------\n\n\n");
             return;
         }
         iterador = nextMap(mapa_numero_pokedex);
@@ -584,8 +601,13 @@ void mostrar_por_tipo(Map *mapa_numero_pokedex, Map *mapa_numero_almacenamiento)
         pokemon_almacenamiento = first(tipo_pokemon);
         if(pokemon_almacenamiento){
             while(pokemon_almacenamiento){
-                printf("%s - %i - %i - %i - %c\n", pokemon_almacenamiento->nombre, pokemon_almacenamiento->id, pokemon_almacenamiento->PC, pokemon_almacenamiento->PS, pokemon_almacenamiento->sexo);
+            printf("\n\n Nombre            Id     PC     PS    Sexo  \n");
+            printf("---------------------------------------------\n");
+            while(pokemon_almacenamiento){
+                printf("|%-12s -%5i -%5i -%5i - %3c    |\n", pokemon_almacenamiento->nombre, pokemon_almacenamiento->id, pokemon_almacenamiento->PC, pokemon_almacenamiento->PS, pokemon_almacenamiento->sexo);
                 pokemon_almacenamiento = next(tipo_pokemon);
+            }
+            printf("---------------------------------------------\n\n\n");
             }
         }
         else{
